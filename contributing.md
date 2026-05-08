@@ -84,7 +84,7 @@ type(scope): short description
 ---
 
 
-# ✅ Commit Exampl
+# ✅ Commit Example
 ```bash
 feat(home): add hero section animation
 
