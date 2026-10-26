@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const prefersReducedMotion = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export default function FloatingCinemaDock({
   onOpenGear,
@@ -9,32 +12,64 @@ export default function FloatingCinemaDock({
 }) {
   const [visible, setVisible] = useState(false);
   const [scrollPercent, setScrollPercent] = useState(0);
+  const latestRef = useRef({ percent: -1, visible: false });
 
   useEffect(() => {
-    const handleScroll = () => {
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
       const totalHeight =
         document.documentElement.scrollHeight - window.innerHeight;
       const currentScroll = window.scrollY;
-      if (totalHeight > 0) {
-        setScrollPercent(
-          Math.min(100, Math.max(0, Math.round((currentScroll / totalHeight) * 100)))
-        );
+      const percent =
+        totalHeight > 0
+          ? Math.min(
+              100,
+              Math.max(0, Math.round((currentScroll / totalHeight) * 100))
+            )
+          : 0;
+      const isVisible = currentScroll > 400;
+
+      if (latestRef.current.percent !== percent) {
+        latestRef.current.percent = percent;
+        setScrollPercent(percent);
       }
-      setVisible(currentScroll > 400);
+      if (latestRef.current.visible !== isVisible) {
+        latestRef.current.visible = isVisible;
+        setVisible(isVisible);
+      }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const schedule = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
   };
 
   const scrollToBook = () => {
     const el = document.getElementById("request-coverage");
     if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+      el.scrollIntoView({
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+      });
     } else {
       window.location.href = "/#request-coverage";
     }
@@ -78,7 +113,7 @@ export default function FloatingCinemaDock({
         aria-label="Scroll to top"
         title="Scroll to Top"
       >
-        <svg className="w-8 h-8 -rotate-90" viewBox="0 0 36 36">
+        <svg className="w-8 h-8 -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
           <path
             className="text-surface-variant stroke-current"
             strokeWidth="2.5"
@@ -101,4 +136,3 @@ export default function FloatingCinemaDock({
     </div>
   );
 }
-

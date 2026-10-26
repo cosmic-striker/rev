@@ -1,37 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const format = (num: number) => num.toString().padStart(2, "0");
 
 export default function CinemaHUD() {
-  const [frames, setFrames] = useState(12);
-  const [seconds, setSeconds] = useState(44);
-  const [minutes, setMinutes] = useState(19);
-  const [hours] = useState(0);
   const [cineMode, setCineMode] = useState<"24FPS" | "60FPS" | "120FPS">("24FPS");
   const [audioActive, setAudioActive] = useState(true);
+  const timecodeRef = useRef<HTMLSpanElement>(null);
 
-  // Accurate cinema timecode runner (24 fps clock)
+  // 24 fps timecode driven outside React to avoid 24 re-renders per second.
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFrames((prev) => {
-        if (prev >= 23) {
-          setSeconds((s) => {
-            if (s >= 59) {
-              setMinutes((m) => (m >= 59 ? 0 : m + 1));
-              return 0;
-            }
-            return s + 1;
-          });
-          return 0;
+    let frame = 0;
+    let lastUpdate = 0;
+    const start = performance.now();
+    const baseFrames = 19 * 60 * 24 + 44 * 24 + 12;
+
+    const tick = (now: number) => {
+      if (now - lastUpdate >= 1000 / 24) {
+        lastUpdate = now;
+        const totalFrames =
+          baseFrames + Math.floor(((now - start) / 1000) * 24);
+        const frames = totalFrames % 24;
+        const seconds = Math.floor(totalFrames / 24) % 60;
+        const minutes = Math.floor(totalFrames / 1440) % 60;
+        const hours = Math.floor(totalFrames / 86400) % 24;
+
+        if (timecodeRef.current) {
+          timecodeRef.current.textContent = `REC [${format(hours)}:${format(
+            minutes
+          )}:${format(seconds)}:${format(frames)}]`;
         }
-        return prev + 1;
-      });
-    }, 1000 / 24);
+      }
+      frame = window.requestAnimationFrame(tick);
+    };
 
-    return () => clearInterval(interval);
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
   }, []);
-
-  const format = (num: number) => num.toString().padStart(2, "0");
 
   return (
     <div className="w-full bg-surface-container-lowest border-b border-surface-variant/40 px-gutter py-1.5 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm select-none z-40 relative">
@@ -39,18 +45,23 @@ export default function CinemaHUD() {
         {/* REC Indicator */}
         <div className="flex items-center gap-space-xs text-primary-fixed bg-surface-container px-2 py-0.5 border border-primary-fixed/30">
           <span className="w-2 h-2 rounded-full bg-primary-container animate-ping" />
-          <span className="font-bold tracking-widest text-primary-fixed font-mono text-xs">
-            REC [{format(hours)}:{format(minutes)}:{format(seconds)}:{format(frames)}]
+          <span
+            ref={timecodeRef}
+            className="font-bold tracking-widest text-primary-fixed font-mono text-xs"
+          >
+            REC [00:19:44:12]
           </span>
         </div>
 
         <span className="hidden md:inline text-outline">|</span>
 
         {/* Audio VU Meter */}
-        <div
+        <button
+          type="button"
+          aria-pressed={audioActive}
+          aria-label="Toggle VU audio monitor"
           onClick={() => setAudioActive(!audioActive)}
           className="cursor-pointer group flex items-center gap-1.5 px-1.5 py-0.5 bg-surface-container/60 hover:bg-surface-container transition-colors"
-          title="Click to toggle VU Audio Monitor"
         >
           <span className="hidden sm:inline font-mono text-xs tracking-wider text-outline">
             VU CH1/2:
@@ -81,7 +92,7 @@ export default function CinemaHUD() {
           <span className="text-xs font-mono text-tertiary-fixed font-bold">
             {audioActive ? "-6dB" : "MUTED"}
           </span>
-        </div>
+        </button>
 
         <span className="hidden lg:inline text-outline">|</span>
 

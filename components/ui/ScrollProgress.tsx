@@ -1,21 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function ScrollProgress() {
-  const [progress, setProgress] = useState(0);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
       const totalHeight =
         document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight <= 0) return;
-      const currentScroll = window.scrollY;
-      setProgress(Math.min(100, Math.max(0, (currentScroll / totalHeight) * 100)));
+      const progress =
+        totalHeight > 0
+          ? Math.min(100, Math.max(0, (window.scrollY / totalHeight) * 100))
+          : 0;
+      if (barRef.current) {
+        barRef.current.style.transform = `scaleX(${progress / 100})`;
+      }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const schedule = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
   }, []);
 
   return (
@@ -24,10 +43,9 @@ export default function ScrollProgress() {
       aria-hidden="true"
     >
       <div
-        className="h-full bg-gradient-to-r from-primary-fixed via-tertiary-fixed to-secondary-container transition-[width] duration-150 ease-out shadow-[0_0_8px_#c3f400]"
-        style={{ width: `${progress}%` }}
+        ref={barRef}
+        className="h-full w-full origin-left scale-x-0 bg-gradient-to-r from-primary-fixed via-tertiary-fixed to-secondary-container transition-transform duration-150 ease-out shadow-[0_0_8px_#c3f400]"
       />
     </div>
   );
 }
-

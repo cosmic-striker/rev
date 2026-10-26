@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function GradeComparison({
   raw,
@@ -11,18 +11,39 @@ export default function GradeComparison({
   graded: string;
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef(0);
+  const pendingXRef = useRef<number | null>(null);
   const [pos, setPos] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
 
-  const update = useCallback((clientX: number) => {
+  const commit = (clientX: number) => {
     const stage = stageRef.current;
     if (!stage) return;
     const rect = stage.getBoundingClientRect();
-    let p = ((clientX - rect.left) / rect.width) * 100;
-    if (p < 2) p = 2;
-    if (p > 98) p = 98;
-    setPos(Math.round(p));
+    let next = ((clientX - rect.left) / rect.width) * 100;
+    if (next < 2) next = 2;
+    if (next > 98) next = 98;
+    setPos(Math.round(next));
+  };
+
+  const scheduleUpdate = (clientX: number) => {
+    pendingXRef.current = clientX;
+    if (frameRef.current) return;
+    frameRef.current = window.requestAnimationFrame(() => {
+      frameRef.current = 0;
+      if (pendingXRef.current !== null) commit(pendingXRef.current);
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      if (frameRef.current) window.cancelAnimationFrame(frameRef.current);
+    };
   }, []);
+
+  const nudge = (delta: number) => {
+    setPos((current) => Math.min(98, Math.max(2, current + delta)));
+  };
 
   return (
     <div className="flex flex-col space-y-3">
@@ -41,6 +62,7 @@ export default function GradeComparison({
               <button
                 key={pct}
                 type="button"
+                aria-pressed={pos === pct}
                 onClick={() => setPos(pct)}
                 className={`px-2 py-0.5 text-xs font-mono uppercase transition-colors ${
                   pos === pct
@@ -59,13 +81,20 @@ export default function GradeComparison({
       <div
         ref={stageRef}
         className="relative aspect-video w-full overflow-hidden border border-surface-variant select-none touch-none cursor-ew-resize shadow-[8px_8px_0px_0px_#c3f400] group"
-        onMouseDown={() => setIsDragging(true)}
-        onMouseUp={() => setIsDragging(false)}
-        onMouseLeave={() => setIsDragging(false)}
-        onMouseMove={(e) => update(e.clientX)}
-        onTouchMove={(e) => {
-          if (e.touches.length > 0) update(e.touches[0].clientX);
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId);
+          setIsDragging(true);
+          scheduleUpdate(event.clientX);
         }}
+        onPointerMove={(event) => {
+          if (!isDragging) return;
+          scheduleUpdate(event.clientX);
+        }}
+        onPointerUp={(event) => {
+          event.currentTarget.releasePointerCapture(event.pointerId);
+          setIsDragging(false);
+        }}
+        onPointerCancel={() => setIsDragging(false)}
       >
         {/* Graded Image (Right) */}
         <Image
@@ -81,7 +110,10 @@ export default function GradeComparison({
           className="absolute inset-y-0 left-0 overflow-hidden"
           style={{ width: `${pos}%` }}
         >
-          <div className="relative w-full h-full" style={{ width: stageRef.current?.clientWidth || "100%" }}>
+          <div
+            className="relative h-full"
+            style={{ width: `${(100 / pos) * 100}%` }}
+          >
             <Image
               src={raw}
               alt="Raw camera log"
@@ -103,7 +135,28 @@ export default function GradeComparison({
 
         {/* Split Divider Line and Draggable Puck */}
         <div
-          className="absolute top-0 bottom-0 w-[2px] bg-primary-fixed shadow-[0_0_12px_#c3f400] z-20 pointer-events-none"
+          role="slider"
+          tabIndex={0}
+          aria-label="Color grade comparison position"
+          aria-valuemin={2}
+          aria-valuemax={98}
+          aria-valuenow={pos}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
+              event.preventDefault();
+              nudge(-2);
+            } else if (event.key === "ArrowRight" || event.key === "ArrowUp") {
+              event.preventDefault();
+              nudge(2);
+            } else if (event.key === "Home") {
+              event.preventDefault();
+              setPos(2);
+            } else if (event.key === "End") {
+              event.preventDefault();
+              setPos(98);
+            }
+          }}
+          className="absolute top-0 bottom-0 w-[2px] bg-primary-fixed shadow-[0_0_12px_#c3f400] z-20 cursor-ew-resize focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-fixed"
           style={{ left: `${pos}%` }}
         >
           <div

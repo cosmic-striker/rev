@@ -437,7 +437,7 @@ export default function JoinPage() {
                   </div>
 
                   {bookingSubmitted && (
-                    <div className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff] animate-bounce">
+                    <div className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff]">
                       <span className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-lg">
                           check_circle
@@ -721,7 +721,7 @@ export default function JoinPage() {
                   </div>
 
                   {joinSubmitted && (
-                    <div className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff] animate-bounce">
+                    <div className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff]">
                       <span className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-lg">
                           check_circle
