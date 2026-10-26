@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { footerLinks, siteConfig } from "@/lib/site";
 
 export default function SiteFooter() {
+  const year = siteConfig.year;
   return (
     <footer className="w-full bg-surface-container-lowest border-t border-surface-variant py-space-xl">
       <div className="max-w-7xl mx-auto px-gutter">
@@ -55,26 +57,16 @@ export default function SiteFooter() {
               Channels &amp; Broadcast
             </h4>
             <ul className="space-y-space-xs font-body-sm text-body-sm">
-              <li>
-                <a className="text-on-surface-variant hover:text-primary transition-colors" href="#">
-                  Instagram Dispatch
-                </a>
-              </li>
-              <li>
-                <a className="text-on-surface-variant hover:text-primary transition-colors" href="#">
-                  YouTube Broadcasts
-                </a>
-              </li>
-              <li>
-                <a className="text-on-surface-variant hover:text-primary transition-colors" href="#">
-                  TikTok Reels
-                </a>
-              </li>
-              <li>
-                <a className="text-on-surface-variant hover:text-primary transition-colors" href="#">
-                  SoundCloud Archives
-                </a>
-              </li>
+              {footerLinks.connect.map((link) => (
+                <li key={link.label}>
+                  <a
+                    className="text-on-surface-variant hover:text-primary transition-colors"
+                    href={link.href}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -98,7 +90,7 @@ export default function SiteFooter() {
         </div>
 
         <div className="pt-space-md flex flex-col sm:flex-row justify-between items-center gap-space-sm text-on-surface-variant font-label-sm text-label-sm uppercase">
-          <span>© 2025 Resolution Club. Managed by students.</span>
+          <span>© {year} {siteConfig.name}. Managed by students.</span>
           <span>Autonomous Student Press Division • University Media Board</span>
         </div>
       </div>

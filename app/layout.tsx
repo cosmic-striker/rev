@@ -19,9 +19,13 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Resolution Club | Student Media Collective",
+  title: {
+    default: "Resolution Club | Student Media Collective",
+    template: "%s | Resolution Club",
+  },
   description:
     "Student-run university media and film collective documenting campus culture, investigative dispatches, and student visual narratives.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
 };
 
 export default function RootLayout({
