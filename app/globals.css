@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    overscroll-behavior-y: none;
+    background: #121314;
+    color: #e3e2e3;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  ::selection {
+    background: #c3f400;
+    color: #161e00;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes vuPeak {
+  0%, 100% {
+    height: 15%;
+  }
+  25% {
+    height: 85%;
+  }
+  50% {
+    height: 45%;
+  }
+  75% {
+    height: 98%;
+  }
+}
+
+@keyframes crosshairRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(1000%);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 28s linear infinite;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 4s ease-in-out infinite;
+  }
+
+  .animate-vu-1 {
+    animation: vuPeak 0.8s ease-in-out infinite alternate;
+  }
+  .animate-vu-2 {
+    animation: vuPeak 1.1s ease-in-out infinite alternate 0.2s;
+  }
+  .animate-vu-3 {
+    animation: vuPeak 0.6s ease-in-out infinite alternate 0.1s;
+  }
+  .animate-vu-4 {
+    animation: vuPeak 0.9s ease-in-out infinite alternate 0.3s;
+  }
+
+  .shadow-neo-lime {
+    box-shadow: 4px 4px 0px 0px #c3f400;
+  }
+  .shadow-neo-lime-lg {
+    box-shadow: 8px 8px 0px 0px #c3f400;
+  }
+  .shadow-neo-blue {
+    box-shadow: 4px 4px 0px 0px #004cf6;
+  }
+  .shadow-neo-blue-lg {
+    box-shadow: 8px 8px 0px 0px #004cf6;
+  }
+  .shadow-neo-white {
+    box-shadow: 4px 4px 0px 0px #ffffff;
+  }
+
+  .neo-press-action {
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .neo-press-action:hover {
+    transform: translate(-2px, -2px);
+  }
+  .neo-press-action:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px 0px transparent !important;
+  }
+
+  .film-grain {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+}
