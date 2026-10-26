@@ -12,6 +12,7 @@ interface RevealProps {
   className?: string;
   threshold?: number;
   once?: boolean;
+  id?: string;
 }
 
 export default function Reveal({
@@ -22,6 +23,7 @@ export default function Reveal({
   className = "",
   threshold = 0.1,
   once = true,
+  id,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -72,6 +74,7 @@ export default function Reveal({
 
   return (
     <div
+      id={id}
       ref={ref}
       className={`transition-all ease-[cubic-bezier(0.16,1,0.3,1)] ${getTransformClasses()} ${className}`}
       style={{
