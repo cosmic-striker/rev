@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Resolution Club (rev)
 
-## Getting Started
+A neo-brutalist portfolio and booking site for a student-run university media and film collective. It showcases campus coverage, student productions, and the crew, and collects event-coverage and crew-application requests.
 
-First, run the development server:
+All on-site people, events, awards, and metrics are illustrative placeholders for this demo and are not claims about a real organization.
+
+## Stack
+
+- [Next.js 14](https://nextjs.org) App Router
+- React 18 + TypeScript (strict)
+- Tailwind CSS with custom design tokens (Syne / Space Grotesk)
+- `next/font` for self-hosted variable fonts
+- Zod-validated route handlers for form delivery
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Create a production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint (Next.js config) |
 
-## Learn More
+## Project structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/                    App Router pages, layout, API routes, SEO files
+  page.tsx              Campus coverage home
+  stories/              Student productions and case studies
+  creators/             Crew roster
+  join/                 Coverage booking and crew application
+  api/                  Form submission route handlers
+components/
+  layout/               Header and footer
+  ui/                   Shared UI (modals, HUD, reveal, icons)
+  home/                 Home page sections and client islands
+  stories/              Stories page sections
+  creators/             Creators page sections
+  join/                 Join page sections
+lib/                    Site config, content data, images, validation
+public/images/          Locally hosted, optimized imagery
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Copy `.env.example` to `.env.local` and set the values you need.
 
-## Deploy on Vercel
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL used by metadata, sitemap and manifest |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Form delivery and additional environment variables are documented in `.env.example`.
