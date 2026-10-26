@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 import { faqs, joinImages } from "@/lib/collective";
 import Reveal from "@/components/ui/Reveal";
 
@@ -112,6 +112,10 @@ export default function JoinPage() {
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
   const [joinSubmitted, setJoinSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const bookingFormRef = useRef<HTMLFormElement>(null);
+  const joinFormRef = useRef<HTMLFormElement>(null);
+  const bookingFormId = useId();
+  const joinFormId = useId();
 
   // Role Matcher Quiz state
   const [vibeAnswer, setVibeAnswer] = useState<string | null>(null);
@@ -230,7 +234,7 @@ export default function JoinPage() {
                       sizes="(max-width: 1024px) 100vw, 33vw"
                       className="object-cover"
                     />
-                    <div className="absolute bottom-2 left-2 px-space-xs py-0.5 bg-surface-container-lowest/90 text-primary-fixed font-label-sm text-label-sm font-mono text-[10px]">
+                    <div className="absolute bottom-2 left-2 px-space-xs py-0.5 bg-surface-container-lowest/90 text-primary-fixed font-label-sm text-label-sm font-mono text-xs">
                       REC ● SONY FX3 // 4K 10-BIT
                     </div>
                   </div>
@@ -257,9 +261,11 @@ export default function JoinPage() {
 
               <Reveal direction="left" delay={150} className="lg:col-span-8 bg-surface-container p-space-lg shadow-[8px_8px_0px_0px_#c3f400] border border-surface-variant">
                 <form
+                  ref={bookingFormRef}
                   onSubmit={(e) => {
                     e.preventDefault();
                     setBookingSubmitted(true);
+                    bookingFormRef.current?.reset();
                   }}
                   className="space-y-space-md"
                 >
@@ -301,10 +307,16 @@ export default function JoinPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
                     <div>
-                      <label className="block font-label-sm text-label-sm uppercase text-on-surface mb-1 font-semibold">
+                      <label
+                        htmlFor={`${bookingFormId}-name`}
+                        className="block font-label-sm text-label-sm uppercase text-on-surface mb-1 font-semibold"
+                      >
                         Your Name *
                       </label>
                       <input
+                        id={`${bookingFormId}-name`}
+                        name="name"
+                        autoComplete="name"
                         type="text"
                         required
                         placeholder="e.g. Alex Morgan"
@@ -312,10 +324,16 @@ export default function JoinPage() {
                       />
                     </div>
                     <div>
-                      <label className="block font-label-sm text-label-sm uppercase text-on-surface mb-1 font-semibold">
+                      <label
+                        htmlFor={`${bookingFormId}-email`}
+                        className="block font-label-sm text-label-sm uppercase text-on-surface mb-1 font-semibold"
+                      >
                         University Email (.edu) *
                       </label>
                       <input
+                        id={`${bookingFormId}-email`}
+                        name="email"
+                        autoComplete="email"
                         type="email"
                         required
                         placeholder="alex@university.edu"
@@ -326,10 +344,16 @@ export default function JoinPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
                     <div>
-                      <label className="block font-label-sm text-label-sm uppercase text-on-surface mb-1 font-semibold">
+                      <label
+                        htmlFor={`${bookingFormId}-organization`}
+                        className="block font-label-sm text-label-sm uppercase text-on-surface mb-1 font-semibold"
+                      >
                         Student Org / Club *
                       </label>
                       <input
+                        id={`${bookingFormId}-organization`}
+                        name="organization"
+                        autoComplete="organization"
                         type="text"
                         required
                         placeholder="e.g. Asian Student Union / Robotics Club"
@@ -337,13 +361,17 @@ export default function JoinPage() {
                       />
                     </div>
                     <div>
-                      <label className="block font-label-sm text-label-sm uppercase text-on-surface mb-1 font-semibold">
+                      <label
+                        htmlFor={`${bookingFormId}-event-date`}
+                        className="block font-label-sm text-label-sm uppercase text-on-surface mb-1 font-semibold"
+                      >
                         Event Date &amp; Time *
                       </label>
                       <input
-                        type="text"
+                        id={`${bookingFormId}-event-date`}
+                        name="eventDate"
+                        type="datetime-local"
                         required
-                        placeholder="e.g. Nov 18, 2024 at 19:00"
                         className="w-full bg-surface-container-high text-primary px-space-md py-space-sm text-xs border border-surface-variant focus:outline-none focus:border-primary-fixed"
                       />
                     </div>
@@ -354,12 +382,16 @@ export default function JoinPage() {
                       Package Deliverables
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-space-xs">
-                      {coveragePackages.map((pkg) => (
+                      {coveragePackages.map((pkg, index) => (
                         <label
                           key={pkg.label}
+                          htmlFor={`${bookingFormId}-package-${index}`}
                           className="flex items-center gap-space-xs p-space-xs bg-surface-container-high border border-surface-variant cursor-pointer hover:bg-surface-bright"
                         >
                           <input
+                            id={`${bookingFormId}-package-${index}`}
+                            name="packages"
+                            value={pkg.label}
                             type="checkbox"
                             defaultChecked={pkg.checked}
                             className="accent-primary-fixed"
@@ -377,26 +409,29 @@ export default function JoinPage() {
                       Budget &amp; Funding Tier
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-xs">
-                      {budgetTiers.map((b) => (
-                        <div
+                      {budgetTiers.map((b, index) => (
+                        <label
                           key={b.label}
-                          className="p-space-xs bg-surface-container-high border border-surface-variant flex items-center justify-between"
+                          htmlFor={`${bookingFormId}-budget-${index}`}
+                          className="p-space-xs bg-surface-container-high border border-surface-variant flex items-center justify-between cursor-pointer"
                         >
                           <div>
                             <span className={`font-headline-sm text-sm font-bold block ${b.tone}`}>
                               {b.price}
                             </span>
-                            <span className="font-label-sm text-[10px] uppercase text-on-surface">
+                            <span className="font-label-sm text-xs uppercase text-on-surface">
                               {b.label}
                             </span>
                           </div>
                           <input
+                            id={`${bookingFormId}-budget-${index}`}
                             type="radio"
                             name="budgetTier"
+                            value={b.label}
                             defaultChecked={b.checked}
                             className="accent-primary-fixed"
                           />
-                        </div>
+                        </label>
                       ))}
                     </div>
                   </div>
@@ -443,16 +478,16 @@ export default function JoinPage() {
                       Interactive Crew Role Matcher Quiz
                     </h3>
                   </div>
-                  <span className="px-2 py-0.5 bg-primary-container text-on-primary-fixed font-mono text-[10px] font-bold uppercase">
+                  <span className="px-2 py-0.5 bg-primary-container text-on-primary-fixed font-mono text-xs font-bold uppercase">
                     30-Second Discovery
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-space-lg pt-space-md">
                   <div className="space-y-2">
-                    <label className="block font-label-sm text-label-sm text-on-surface uppercase font-bold">
+                    <p className="block font-label-sm text-label-sm text-on-surface uppercase font-bold">
                       1. What kind of creative energy calls to you most?
-                    </label>
+                    </p>
                     <div className="space-y-1.5">
                       {[
                         { id: "action", label: "Dynamic movement, fast pacing & running with the camera" },
@@ -463,6 +498,7 @@ export default function JoinPage() {
                         <button
                           key={item.id}
                           type="button"
+                          aria-pressed={vibeAnswer === item.id}
                           onClick={() => setVibeAnswer(item.id)}
                           className={`w-full p-2.5 text-left text-xs uppercase font-semibold transition-all border ${
                             vibeAnswer === item.id
@@ -477,9 +513,9 @@ export default function JoinPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block font-label-sm text-label-sm text-on-surface uppercase font-bold">
+                    <p className="block font-label-sm text-label-sm text-on-surface uppercase font-bold">
                       2. How would you spend your ideal Friday night on campus?
-                    </label>
+                    </p>
                     <div className="space-y-1.5">
                       {[
                         { id: "field", label: "In the front row / media pit of a packed concert or game" },
@@ -490,6 +526,7 @@ export default function JoinPage() {
                         <button
                           key={item.id}
                           type="button"
+                          aria-pressed={eveningAnswer === item.id}
                           onClick={() => setEveningAnswer(item.id)}
                           className={`w-full p-2.5 text-left text-xs uppercase font-semibold transition-all border ${
                             eveningAnswer === item.id
@@ -507,7 +544,7 @@ export default function JoinPage() {
                 {getRoleMatch() && (
                   <div className="mt-space-md p-space-md bg-surface-container-lowest border-2 border-primary-fixed flex flex-col sm:flex-row items-center justify-between gap-space-md shadow-[4px_4px_0px_0px_#c3f400]">
                     <div>
-                      <span className="font-mono text-[10px] text-tertiary-fixed uppercase font-bold">
+                      <span className="font-mono text-xs text-tertiary-fixed uppercase font-bold">
                         RECOMMENDED CREW COHORT:
                       </span>
                       <p className="font-headline-sm text-primary-fixed font-bold uppercase text-base mt-0.5">
@@ -562,18 +599,26 @@ export default function JoinPage() {
                 </div>
 
                 <form
+                  ref={joinFormRef}
                   onSubmit={(e) => {
                     e.preventDefault();
                     setJoinSubmitted(true);
+                    joinFormRef.current?.reset();
                   }}
                   className="space-y-space-md"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-md">
                     <div>
-                      <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                      <label
+                        htmlFor={`${joinFormId}-name`}
+                        className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                      >
                         Full Name *
                       </label>
                       <input
+                        id={`${joinFormId}-name`}
+                        name="name"
+                        autoComplete="name"
                         type="text"
                         required
                         placeholder="e.g. Jordan Hayes"
@@ -581,10 +626,16 @@ export default function JoinPage() {
                       />
                     </div>
                     <div>
-                      <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                      <label
+                        htmlFor={`${joinFormId}-email`}
+                        className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                      >
                         University Email *
                       </label>
                       <input
+                        id={`${joinFormId}-email`}
+                        name="email"
+                        autoComplete="email"
                         type="email"
                         required
                         placeholder="jordan@university.edu"
@@ -592,10 +643,15 @@ export default function JoinPage() {
                       />
                     </div>
                     <div>
-                      <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                      <label
+                        htmlFor={`${joinFormId}-graduation`}
+                        className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                      >
                         Graduation Year &amp; Major *
                       </label>
                       <input
+                        id={`${joinFormId}-graduation`}
+                        name="graduation"
                         type="text"
                         required
                         placeholder="e.g. '26 Film / Computer Science"
@@ -612,9 +668,13 @@ export default function JoinPage() {
                       {openRoles.map((role, idx) => (
                         <label
                           key={role}
+                          htmlFor={`${joinFormId}-role-${idx}`}
                           className="flex items-center gap-space-xs p-space-xs bg-surface-container-high border border-surface-variant cursor-pointer hover:bg-surface-bright"
                         >
                           <input
+                            id={`${joinFormId}-role-${idx}`}
+                            name="roles"
+                            value={role}
                             type="checkbox"
                             defaultChecked={idx === 0}
                             className="accent-primary-fixed"
@@ -628,10 +688,16 @@ export default function JoinPage() {
                   </div>
 
                   <div>
-                    <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                    <label
+                      htmlFor={`${joinFormId}-portfolio`}
+                      className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                    >
                       Portfolio / Social Links (Optional)
                     </label>
                     <input
+                      id={`${joinFormId}-portfolio`}
+                      name="portfolio"
+                      autoComplete="url"
                       type="text"
                       placeholder="e.g. Instagram, YouTube, Vimeo, Behance, or Google Drive folder"
                       className="w-full bg-surface-container-high text-primary px-space-md py-space-sm text-xs border border-surface-variant focus:outline-none focus:border-primary-fixed"
@@ -639,10 +705,15 @@ export default function JoinPage() {
                   </div>
 
                   <div>
-                    <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                    <label
+                      htmlFor={`${joinFormId}-why`}
+                      className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                    >
                       Why do you want to join Resolution Club?
                     </label>
                     <textarea
+                      id={`${joinFormId}-why`}
+                      name="why"
                       rows={3}
                       placeholder="Tell us about the kinds of stories you want to capture, your creative heroes, or what you want to learn..."
                       className="w-full bg-surface-container-high text-primary px-space-md py-space-sm text-xs border border-surface-variant focus:outline-none focus:border-primary-fixed resize-none"

@@ -59,7 +59,7 @@ export default function QuickQuoteCalculator({
             Interactive Coverage &amp; Crew Estimator
           </h3>
         </div>
-        <span className="px-2 py-0.5 bg-primary-container text-on-primary-fixed font-label-sm text-[11px] font-bold uppercase tracking-wider">
+        <span className="px-2 py-0.5 bg-primary-container text-on-primary-fixed font-label-sm text-xs font-bold uppercase tracking-wider">
           Real-Time University Pricing
         </span>
       </div>
@@ -106,7 +106,7 @@ export default function QuickQuoteCalculator({
                 key={d.id}
                 type="button"
                 onClick={() => setDuration(d.id as typeof duration)}
-                className={`py-1 px-1.5 text-center text-[11px] uppercase font-bold tracking-wider transition-colors ${
+                className={`py-1 px-1.5 text-center text-xs uppercase font-bold tracking-wider transition-colors ${
                   duration === d.id
                     ? "bg-primary-container text-on-primary-fixed"
                     : "bg-surface-container text-on-surface-variant hover:text-primary"
@@ -140,7 +140,7 @@ export default function QuickQuoteCalculator({
                 }`}
               >
                 <p className="text-xs uppercase font-bold text-primary">{org.label}</p>
-                <p className="text-[10px] text-tertiary-fixed">{org.note}</p>
+                <p className="text-xs text-tertiary-fixed">{org.note}</p>
               </button>
             ))}
           </div>
@@ -161,7 +161,7 @@ export default function QuickQuoteCalculator({
                   key={del}
                   type="button"
                   onClick={() => toggleDeliverable(del)}
-                  className={`p-1.5 text-left text-[11px] uppercase font-semibold flex items-center gap-1.5 transition-colors ${
+                  className={`p-1.5 text-left text-xs uppercase font-semibold flex items-center gap-1.5 transition-colors ${
                     active
                       ? "bg-primary-fixed/20 text-primary-fixed border border-primary-fixed/40"
                       : "bg-surface-container text-outline hover:text-on-surface"
@@ -180,34 +180,34 @@ export default function QuickQuoteCalculator({
         {/* Step 3: Estimated Calculation Breakdown */}
         <div className="bg-surface-container-lowest p-4 border border-surface-variant flex flex-col justify-between space-y-3">
           <div>
-            <span className="font-label-sm text-[10px] text-primary-fixed uppercase tracking-widest font-bold">
+            <span className="font-label-sm text-xs text-primary-fixed uppercase tracking-widest font-bold">
               ESTIMATED CREW DISPATCH QUOTE
             </span>
             <div className="mt-2 space-y-2">
               <div>
-                <p className="text-[10px] uppercase text-outline">Total Budget Impact</p>
+                <p className="text-xs uppercase text-outline">Total Budget Impact</p>
                 <p className="font-headline-lg text-headline-md text-primary-fixed font-bold leading-none mt-0.5">
                   {getCost()}
                 </p>
               </div>
 
               <div>
-                <p className="text-[10px] uppercase text-outline">Recommended Crew</p>
+                <p className="text-xs uppercase text-outline">Recommended Crew</p>
                 <p className="text-xs uppercase font-semibold text-primary mt-0.5">
                   {getCrewSize()}
                 </p>
               </div>
 
               <div>
-                <p className="text-[10px] uppercase text-outline">Estimated Delivery SLA</p>
+                <p className="text-xs uppercase text-outline">Estimated Delivery SLA</p>
                 <p className="text-xs uppercase font-semibold text-tertiary-fixed mt-0.5">
                   {getEstimatedTurnaround()}
                 </p>
               </div>
 
               <div>
-                <p className="text-[10px] uppercase text-outline">Production Gear Package</p>
-                <p className="text-[11px] text-on-surface-variant mt-0.5">
+                <p className="text-xs uppercase text-outline">Production Gear Package</p>
+                <p className="text-xs text-on-surface-variant mt-0.5">
                   Sony FX3 / FX30 Cinema Rigs, Gimbal Stabilization &amp; Wireless Audio.
                 </p>
               </div>

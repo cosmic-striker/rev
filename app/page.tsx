@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useId, useRef, useState } from "react";
 import {
   homeChapters,
   homeFilters,
@@ -15,6 +15,7 @@ import Reveal from "@/components/ui/Reveal";
 import GearLockerModal from "@/components/ui/GearLockerModal";
 import QuickQuoteCalculator from "@/components/ui/QuickQuoteCalculator";
 import FloatingCinemaDock from "@/components/ui/FloatingCinemaDock";
+import Modal from "@/components/ui/Modal";
 
 function FilmStrip({ count = 6 }: { count?: number }) {
   return (
@@ -86,6 +87,13 @@ export default function CampusCoveragePage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formNotes, setFormNotes] = useState("");
+  const coverageFormRef = useRef<HTMLFormElement>(null);
+  const coverageFormId = useId();
+  const coverageNameId = `${coverageFormId}-name`;
+  const coverageEmailId = `${coverageFormId}-email`;
+  const coverageOrgId = `${coverageFormId}-organization`;
+  const coverageDateId = `${coverageFormId}-date`;
+  const coverageNotesId = `${coverageFormId}-notes`;
 
   const chapter = homeChapters[activeChapter];
 
@@ -99,18 +107,6 @@ export default function CampusCoveragePage() {
       item.footer.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setReelOpen(false);
-        setSelectedMedia(null);
-        setGearModalOpen(false);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
 
   const handleApplyEstimates = (summary: string) => {
     setFormNotes((prev) =>
@@ -148,19 +144,19 @@ export default function CampusCoveragePage() {
       {/* Hero Section */}
       <section className="relative w-full bg-surface-container-lowest overflow-hidden border-b border-surface-variant/40">
         {/* Animated Viewfinder Grid Overlays */}
-        <div className="absolute top-6 left-6 pointer-events-none text-outline-variant font-label-sm z-20 hidden sm:flex flex-col">
-          <span className="text-tertiary-fixed-dim font-mono text-[11px] font-bold">
+        <div className="absolute top-6 left-6 pointer-events-none text-outline font-label-sm z-20 hidden sm:flex flex-col">
+          <span className="text-tertiary-fixed-dim font-mono text-xs font-bold">
             ⌜ FRAME 2.39:1 ANAMORPHIC
           </span>
-          <span className="text-on-surface-variant text-[9px] font-mono">
+          <span className="text-on-surface-variant text-xs font-mono">
             4K RAW 12-BIT // ISO 800
           </span>
         </div>
-        <div className="absolute top-6 right-6 pointer-events-none text-outline-variant font-label-sm z-20 text-right hidden sm:block">
-          <span className="text-tertiary-fixed-dim font-mono text-[11px] font-bold">
+        <div className="absolute top-6 right-6 pointer-events-none text-outline font-label-sm z-20 text-right hidden sm:block">
+          <span className="text-tertiary-fixed-dim font-mono text-xs font-bold">
             LUT: RESOLUTION_PRINT_04 ⌝
           </span>
-          <span className="text-on-surface-variant text-[9px] font-mono">
+          <span className="text-on-surface-variant text-xs font-mono">
             WB 5600K • SHUTTER 1/48
           </span>
         </div>
@@ -257,14 +253,23 @@ export default function CampusCoveragePage() {
                   <span className="w-2 h-2 rounded-full bg-primary-fixed animate-ping" />
                   <span>● LIVE PREVIEW SINK</span>
                 </div>
-                <span className="font-mono text-[10px] text-tertiary-fixed">
+                <span className="font-mono text-xs text-tertiary-fixed">
                   STILLS / 120FPS DUAL GAIN
                 </span>
               </div>
 
               <div
+                role="button"
+                tabIndex={0}
+                aria-label="Open the Spring Fling 2024 preview reel"
                 onClick={() => setReelOpen(true)}
-                className="relative aspect-video w-full overflow-hidden bg-surface-container-highest cursor-pointer select-none"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setReelOpen(true);
+                  }
+                }}
+                className="relative aspect-video w-full overflow-hidden bg-surface-container-highest cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low"
               >
                 <Image
                   src={homeImages.hero}
@@ -288,7 +293,7 @@ export default function CampusCoveragePage() {
                 </div>
 
                 {/* Live audio waves badge on preview */}
-                <div className="absolute top-3 right-3 flex items-center gap-1 bg-surface-container-lowest/80 px-2 py-1 text-[10px] font-mono text-primary-fixed uppercase border border-surface-variant">
+                <div className="absolute top-3 right-3 flex items-center gap-1 bg-surface-container-lowest/80 px-2 py-1 text-xs font-mono text-primary-fixed uppercase border border-surface-variant">
                   <span className="w-1 h-2.5 bg-primary-fixed animate-pulse" />
                   <span className="w-1 h-4 bg-tertiary-fixed animate-pulse" />
                   <span className="w-1 h-3 bg-secondary-fixed animate-pulse" />
@@ -315,7 +320,7 @@ export default function CampusCoveragePage() {
                 </div>
               </div>
 
-              <div className="pt-space-xs flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant uppercase font-mono text-[10px]">
+              <div className="pt-space-xs flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant uppercase font-mono text-xs">
                 <span>MEDIA ID: #LUM-2024-DOCS</span>
                 <span className="text-tertiary-fixed font-bold">
                   SYNC LOCK: GENLOCK MASTER
@@ -377,7 +382,11 @@ export default function CampusCoveragePage() {
                 Latest Productions &amp; Student Work
               </h2>
               <div className="flex items-center gap-space-sm text-label-md text-label-md uppercase text-on-surface-variant tracking-wider mt-1">
-                <span className="text-primary-fixed font-bold">
+                <span
+                  className="text-primary-fixed font-bold"
+                  role="status"
+                  aria-live="polite"
+                >
                   ● {visibleMedia.length} DISPATCHES
                 </span>
                 <span>•</span>
@@ -405,6 +414,7 @@ export default function CampusCoveragePage() {
                 {searchQuery && (
                   <button
                     type="button"
+                    aria-label="Clear search"
                     onClick={() => setSearchQuery("")}
                     className="absolute right-2 top-2 text-xs text-outline hover:text-primary"
                   >
@@ -420,6 +430,7 @@ export default function CampusCoveragePage() {
                     <button
                       key={filter.id}
                       type="button"
+                      aria-pressed={active}
                       onClick={() => setActiveFilter(filter.id)}
                       className={
                         active
@@ -440,8 +451,17 @@ export default function CampusCoveragePage() {
             {visibleMedia.map((item, idx) => (
               <Reveal key={item.id} delay={idx * 80} direction="up">
                 <article
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Open ${item.title}`}
                   onClick={() => setSelectedMedia(item)}
-                  className="media-card group flex flex-col bg-surface-container-low transition-all duration-300 hover:bg-surface-container shadow-[4px_4px_0px_0px_#292a2b] hover:shadow-[6px_6px_0px_0px_#c3f400] hover:-translate-y-1 cursor-pointer border border-surface-variant/30"
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedMedia(item);
+                    }
+                  }}
+                  className="media-card group flex flex-col bg-surface-container-low transition-all duration-300 hover:bg-surface-container shadow-[4px_4px_0px_0px_#292a2b] hover:shadow-[6px_6px_0px_0px_#c3f400] hover:-translate-y-1 cursor-pointer border border-surface-variant/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
                   <FilmStrip />
                   <div className="relative aspect-video w-full overflow-hidden bg-surface-container-highest">
@@ -462,7 +482,7 @@ export default function CampusCoveragePage() {
                         {item.secondaryBadge}
                       </span>
                     </div>
-                    <div className="absolute bottom-2 right-2 bg-surface-container-lowest/90 px-space-xs py-0.5 text-on-surface font-label-sm text-label-sm z-10 font-mono text-[11px]">
+                    <div className="absolute bottom-2 right-2 bg-surface-container-lowest/90 px-space-xs py-0.5 text-on-surface font-label-sm text-label-sm z-10 font-mono text-xs">
                       {item.duration}
                     </div>
                     <div className="absolute inset-0 bg-primary-fixed/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -581,7 +601,7 @@ export default function CampusCoveragePage() {
                     {chapter.label.toUpperCase()}
                   </span>
                 </div>
-                <div className="hidden sm:flex items-center gap-space-xs bg-surface-container-lowest/80 px-space-xs py-1 border border-surface-variant/40 font-mono text-[11px]">
+                <div className="hidden sm:flex items-center gap-space-xs bg-surface-container-lowest/80 px-space-xs py-1 border border-surface-variant/40 font-mono text-xs">
                   <span>AUDIO: 5.1 SURROUND BUS</span>
                 </div>
               </div>
@@ -662,7 +682,7 @@ export default function CampusCoveragePage() {
                   <span className="font-label-sm text-label-sm text-primary-fixed uppercase tracking-wider font-bold">
                     Gear Locker • Free Member Checkout
                   </span>
-                  <span className="px-1.5 py-0.5 bg-secondary-container text-secondary-fixed text-[10px] uppercase font-bold">
+                  <span className="px-1.5 py-0.5 bg-secondary-container text-secondary-fixed text-xs uppercase font-bold">
                     28+ Rigs In Inventory
                   </span>
                 </div>
@@ -703,19 +723,19 @@ export default function CampusCoveragePage() {
               <div className="grid grid-cols-3 gap-space-xs pt-1">
                 <div className="p-space-xs bg-surface-container text-center border border-surface-variant/40">
                   <div className="text-primary-fixed font-headline-sm font-bold">48H</div>
-                  <div className="text-label-sm text-on-surface-variant uppercase font-semibold text-[10px]">
+                  <div className="text-label-sm text-on-surface-variant uppercase font-semibold text-xs">
                     Fast Social Delivery
                   </div>
                 </div>
                 <div className="p-space-xs bg-surface-container text-center border border-surface-variant/40">
                   <div className="text-secondary font-headline-sm font-bold">$0</div>
-                  <div className="text-label-sm text-on-surface-variant uppercase font-semibold text-[10px]">
+                  <div className="text-label-sm text-on-surface-variant uppercase font-semibold text-xs">
                     Free For RSOs
                   </div>
                 </div>
                 <div className="p-space-xs bg-surface-container text-center border border-surface-variant/40">
                   <div className="text-tertiary-fixed font-headline-sm font-bold">4K</div>
-                  <div className="text-label-sm text-on-surface-variant uppercase font-semibold text-[10px]">
+                  <div className="text-label-sm text-on-surface-variant uppercase font-semibold text-xs">
                     Sony FX3 Rigs
                   </div>
                 </div>
@@ -779,22 +799,31 @@ export default function CampusCoveragePage() {
               </div>
 
               <form
+                ref={coverageFormRef}
                 className="space-y-space-md"
                 onSubmit={(event) => {
                   event.preventDefault();
                   setIsSubmitting(true);
-                  setTimeout(() => {
+                  window.setTimeout(() => {
                     setIsSubmitting(false);
                     setSubmitted(true);
+                    setFormNotes("");
+                    coverageFormRef.current?.reset();
                   }, 600);
                 }}
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
                   <div>
-                    <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                    <label
+                      htmlFor={coverageNameId}
+                      className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                    >
                       Contact Name *
                     </label>
                     <input
+                      id={coverageNameId}
+                      name="name"
+                      autoComplete="name"
                       className="w-full bg-surface-container text-on-surface px-space-md py-space-sm font-body-sm text-body-sm outline-none border border-surface-variant focus:border-primary-fixed placeholder:text-outline"
                       placeholder="e.g. Jordan Hayes"
                       required
@@ -802,10 +831,16 @@ export default function CampusCoveragePage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                    <label
+                      htmlFor={coverageEmailId}
+                      className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                    >
                       University Email (.edu) *
                     </label>
                     <input
+                      id={coverageEmailId}
+                      name="email"
+                      autoComplete="email"
                       className="w-full bg-surface-container text-on-surface px-space-md py-space-sm font-body-sm text-body-sm outline-none border border-surface-variant focus:border-primary-fixed placeholder:text-outline"
                       placeholder="name@university.edu"
                       required
@@ -816,10 +851,16 @@ export default function CampusCoveragePage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
                   <div>
-                    <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                    <label
+                      htmlFor={coverageOrgId}
+                      className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                    >
                       Student Org / Department *
                     </label>
                     <input
+                      id={coverageOrgId}
+                      name="organization"
+                      autoComplete="organization"
                       className="w-full bg-surface-container text-on-surface px-space-md py-space-sm font-body-sm text-body-sm outline-none border border-surface-variant focus:border-primary-fixed placeholder:text-outline"
                       placeholder="e.g. Student Government / Engineering Society"
                       required
@@ -827,14 +868,18 @@ export default function CampusCoveragePage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                    <label
+                      htmlFor={coverageDateId}
+                      className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                    >
                       Event Date &amp; Time *
                     </label>
                     <input
+                      id={coverageDateId}
+                      name="eventDate"
                       className="w-full bg-surface-container text-on-surface px-space-md py-space-sm font-body-sm text-body-sm outline-none border border-surface-variant focus:border-primary-fixed placeholder:text-outline"
-                      placeholder="e.g. Nov 14, 2024 at 18:00"
                       required
-                      type="text"
+                      type="datetime-local"
                     />
                   </div>
                 </div>
@@ -848,9 +893,13 @@ export default function CampusCoveragePage() {
                       (label, index) => (
                         <label
                           key={label}
+                          htmlFor={`${coverageFormId}-package-${index}`}
                           className="flex items-center gap-space-xs p-space-xs bg-surface-container cursor-pointer hover:bg-surface-bright border border-surface-variant/40"
                         >
                           <input
+                            id={`${coverageFormId}-package-${index}`}
+                            name="packages"
+                            value={label}
                             defaultChecked={index < 2}
                             className="accent-primary-fixed"
                             type="checkbox"
@@ -865,10 +914,15 @@ export default function CampusCoveragePage() {
                 </div>
 
                 <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold">
+                  <label
+                    htmlFor={coverageNotesId}
+                    className="block font-label-sm text-label-sm text-on-surface uppercase mb-1 font-semibold"
+                  >
                     Event Location, Gear Notes &amp; Story Details
                   </label>
                   <textarea
+                    id={coverageNotesId}
+                    name="notes"
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
                     className="w-full bg-surface-container text-on-surface px-space-md py-space-sm font-body-sm text-body-sm outline-none border border-surface-variant focus:border-primary-fixed placeholder:text-outline resize-none"
@@ -958,20 +1012,19 @@ export default function CampusCoveragePage() {
       </section>
 
       {/* Master Reel Modal */}
-      {reelOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center p-space-md"
-          role="dialog"
-          aria-modal="true"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) setReelOpen(false);
-          }}
-        >
-          <div className="bg-surface-container-low max-w-4xl w-full p-space-md shadow-[10px_10px_0px_0px_#c3f400] relative border border-surface-variant">
+      <Modal
+        open={reelOpen}
+        onClose={() => setReelOpen(false)}
+        labelledBy="reel-modal-title"
+        panelClassName="w-full max-w-4xl border border-surface-variant bg-surface-container-low p-space-md shadow-[10px_10px_0px_0px_#c3f400]"
+      >
             <div className="flex items-center justify-between pb-space-sm mb-space-sm border-b border-surface-variant/40">
               <div className="flex items-center gap-space-xs">
                 <span className="w-2 h-2 bg-primary-container animate-ping" />
-                <span className="font-headline-sm text-headline-sm uppercase text-primary">
+                <span
+                  id="reel-modal-title"
+                  className="font-headline-sm text-headline-sm uppercase text-primary"
+                >
                   FALL 2024 MASTER REEL PREVIEW
                 </span>
               </div>
@@ -1014,31 +1067,30 @@ export default function CampusCoveragePage() {
                 </div>
               </div>
             </div>
-            <div className="mt-space-sm flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant uppercase font-mono text-[11px]">
+            <div className="mt-space-sm flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant uppercase font-mono text-xs">
               <span>COLLEGIATE STUDENT PRESS ACCREDITED</span>
               <span className="text-primary-fixed font-bold">4K 60FPS PRORES 422HQ</span>
             </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Individual Dispatch Project Modal */}
-      {selectedMedia && (
-        <div
-          className="fixed inset-0 z-50 bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center p-space-md"
-          role="dialog"
-          aria-modal="true"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) setSelectedMedia(null);
-          }}
-        >
-          <div className="bg-surface-container-low max-w-3xl w-full p-space-md shadow-[10px_10px_0px_0px_#004cf6] relative border border-surface-variant">
+      <Modal
+        open={selectedMedia !== null}
+        onClose={() => setSelectedMedia(null)}
+        labelledBy="media-modal-title"
+        panelClassName="w-full max-w-3xl border border-surface-variant bg-surface-container-low p-space-md shadow-[10px_10px_0px_0px_#004cf6]"
+      >
+        {selectedMedia && (
+          <div>
             <div className="flex items-center justify-between pb-space-sm mb-space-sm border-b border-surface-variant/40">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-primary-container text-on-primary-fixed font-label-sm text-[10px] font-bold uppercase">
+                <span className="px-2 py-0.5 bg-primary-container text-on-primary-fixed font-label-sm text-xs font-bold uppercase">
                   {selectedMedia.badge}
                 </span>
-                <span className="font-headline-sm text-headline-sm uppercase text-primary truncate max-w-sm sm:max-w-md">
+                <span
+                  id="media-modal-title"
+                  className="font-headline-sm text-headline-sm uppercase text-primary max-w-sm sm:max-w-md"
+                >
                   {selectedMedia.title}
                 </span>
               </div>
@@ -1088,8 +1140,8 @@ export default function CampusCoveragePage() {
               </Link>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 }

@@ -39,12 +39,12 @@ export default function CinemaHUD() {
         {/* REC Indicator */}
         <div className="flex items-center gap-space-xs text-primary-fixed bg-surface-container px-2 py-0.5 border border-primary-fixed/30">
           <span className="w-2 h-2 rounded-full bg-primary-container animate-ping" />
-          <span className="font-bold tracking-widest text-primary-fixed font-mono text-[11px]">
+          <span className="font-bold tracking-widest text-primary-fixed font-mono text-xs">
             REC [{format(hours)}:{format(minutes)}:{format(seconds)}:{format(frames)}]
           </span>
         </div>
 
-        <span className="hidden md:inline text-outline-variant">|</span>
+        <span className="hidden md:inline text-outline">|</span>
 
         {/* Audio VU Meter */}
         <div
@@ -52,7 +52,7 @@ export default function CinemaHUD() {
           className="cursor-pointer group flex items-center gap-1.5 px-1.5 py-0.5 bg-surface-container/60 hover:bg-surface-container transition-colors"
           title="Click to toggle VU Audio Monitor"
         >
-          <span className="hidden sm:inline font-mono text-[10px] tracking-wider text-outline">
+          <span className="hidden sm:inline font-mono text-xs tracking-wider text-outline">
             VU CH1/2:
           </span>
           <div className="flex items-end gap-0.5 h-3.5 w-14 bg-surface-container-highest px-0.5 py-0.5">
@@ -78,12 +78,12 @@ export default function CinemaHUD() {
             />
             <span className="w-1.5 bg-error h-1" />
           </div>
-          <span className="text-[10px] font-mono text-tertiary-fixed font-bold">
+          <span className="text-xs font-mono text-tertiary-fixed font-bold">
             {audioActive ? "-6dB" : "MUTED"}
           </span>
         </div>
 
-        <span className="hidden lg:inline text-outline-variant">|</span>
+        <span className="hidden lg:inline text-outline">|</span>
 
         {/* Camera Sensor Mode Switcher */}
         <button
@@ -97,29 +97,29 @@ export default function CinemaHUD() {
             const nextIdx = (modes.indexOf(cineMode) + 1) % modes.length;
             setCineMode(modes[nextIdx]);
           }}
-          className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-container text-[10px] font-mono tracking-wider hover:text-primary transition-colors border border-surface-variant/40"
+          className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-container text-xs font-mono tracking-wider hover:text-primary transition-colors border border-surface-variant/40"
           title="Switch Cine Sensor Profile"
         >
           <span className="text-outline">CAM-A:</span>
           <span className="text-primary font-bold">SONY FX3</span>
           <span className="text-secondary font-bold">[{cineMode}]</span>
-          <span className="text-tertiary-fixed text-[9px]">EI 800</span>
+          <span className="text-tertiary-fixed text-xs">EI 800</span>
         </button>
 
-        <span className="hidden sm:inline text-outline-variant">|</span>
+        <span className="hidden sm:inline text-outline">|</span>
 
         {/* Dispatch announcement ticker */}
-        <div className="flex items-center gap-2 text-tertiary-fixed font-semibold tracking-wider text-[11px]">
+        <div className="flex items-center gap-2 text-tertiary-fixed font-semibold tracking-wider text-xs">
           <span className="inline-block w-1.5 h-1.5 bg-tertiary-fixed animate-pulse" />
           <span>CAMPUS DISPATCH ACTIVE // FALL PRODUCTION SZN</span>
         </div>
       </div>
 
       <div className="hidden md:flex items-center gap-space-sm font-label-sm">
-        <span className="text-on-surface-variant text-[11px] uppercase tracking-wider">
+        <span className="text-on-surface-variant text-xs uppercase tracking-wider">
           NEXT CREW CALL:
         </span>
-        <span className="px-space-xs py-0.5 bg-surface-container-high border border-primary-fixed/40 text-primary-fixed font-bold tracking-wider text-[11px]">
+        <span className="px-space-xs py-0.5 bg-surface-container-high border border-primary-fixed/40 text-primary-fixed font-bold tracking-wider text-xs">
           TUE 19:00 RM 304
         </span>
       </div>

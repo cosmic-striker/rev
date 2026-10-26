@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { creators, type Creator } from "@/lib/collective";
 import Reveal from "@/components/ui/Reveal";
+import Modal from "@/components/ui/Modal";
 
 const filters = [
   { id: "all", label: "All Crew (42)" },
@@ -75,14 +76,6 @@ export default function CreatorsPage() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelectedCreator(null);
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, []);
 
   const visibleCreators = creators.filter((creator) => {
     const matchesFilter =
@@ -200,15 +193,18 @@ export default function CreatorsPage() {
       {/* Filter and Instant Search Bar */}
       <section className="w-full bg-surface-container-lowest py-space-md sticky top-20 z-40 backdrop-blur-md bg-opacity-95 border-b border-surface-variant/40">
         <div className="max-w-7xl mx-auto px-gutter flex flex-col md:flex-row md:items-center justify-between gap-space-md">
-          <div className="flex items-center gap-space-xs overflow-x-auto pb-space-xs scrollbar-none" role="tablist">
+          <div
+            className="flex items-center gap-space-xs overflow-x-auto pb-space-xs scrollbar-none"
+            role="group"
+            aria-label="Filter crew by department"
+          >
             {filters.map((filter) => {
               const active = activeFilter === filter.id;
               return (
                 <button
                   key={filter.id}
                   type="button"
-                  role="tab"
-                  aria-selected={active}
+                  aria-pressed={active}
                   onClick={() => setActiveFilter(filter.id)}
                   className={`px-space-md py-space-xs text-label-lg font-label-lg uppercase tracking-wider transition-all whitespace-nowrap ${
                     active
@@ -228,6 +224,7 @@ export default function CreatorsPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search crew by name, role, specialty, or gear"
                 placeholder="Search crew by name, gear..."
                 className="w-full bg-surface-container text-primary text-xs px-3 py-1.5 pl-8 border border-surface-variant focus:outline-none focus:border-primary-fixed placeholder:text-outline"
               />
@@ -237,6 +234,7 @@ export default function CreatorsPage() {
               {search && (
                 <button
                   type="button"
+                  aria-label="Clear crew search"
                   onClick={() => setSearch("")}
                   className="absolute right-2 top-1.5 text-xs text-outline hover:text-primary"
                 >
@@ -259,6 +257,9 @@ export default function CreatorsPage() {
             </div>
           </div>
         </div>
+        <p className="sr-only" role="status" aria-live="polite">
+          Showing {visibleCreators.length} crew members
+        </p>
       </section>
 
       {/* Creators Grid */}
@@ -270,8 +271,17 @@ export default function CreatorsPage() {
               return (
                 <Reveal key={creator.id} delay={idx * 70} direction="up">
                   <article
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View dossier for ${creator.name}, ${creator.role}`}
                     onClick={() => setSelectedCreator(creator)}
-                    className="student-card group flex flex-col bg-surface-container relative overflow-hidden transition-all duration-300 hover:-translate-y-1.5 cursor-pointer shadow-[4px_4px_0px_0px_#292a2b] hover:shadow-[6px_6px_0px_0px_#c3f400] border border-surface-variant"
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setSelectedCreator(creator);
+                      }
+                    }}
+                    className="student-card group flex flex-col bg-surface-container relative overflow-hidden transition-all duration-300 hover:-translate-y-1.5 cursor-pointer shadow-[4px_4px_0px_0px_#292a2b] hover:shadow-[6px_6px_0px_0px_#c3f400] border border-surface-variant focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-fixed"
                   >
                     <div className="h-4 bg-surface-container-lowest flex items-center justify-around px-2 py-0.5 select-none">
                       {Array.from({ length: 5 }).map((_, index) => (
@@ -501,16 +511,14 @@ export default function CreatorsPage() {
       </section>
 
       {/* Creator Detail Modal */}
-      {selectedCreator && (
-        <div
-          className="fixed inset-0 z-50 bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
-          role="dialog"
-          aria-modal="true"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setSelectedCreator(null);
-          }}
-        >
-          <div className="bg-surface-container-low max-w-2xl w-full border border-surface-variant p-4 sm:p-6 shadow-[10px_10px_0px_0px_#c3f400] relative">
+      <Modal
+        open={selectedCreator !== null}
+        onClose={() => setSelectedCreator(null)}
+        labelledBy="creator-modal-title"
+        panelClassName="bg-surface-container-low max-w-2xl w-full border border-surface-variant p-4 sm:p-6 shadow-[10px_10px_0px_0px_#c3f400] relative"
+      >
+        {selectedCreator && (
+          <>
             <div className="flex items-center justify-between pb-4 border-b border-surface-variant/40">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-primary-container text-on-primary-fixed font-mono text-xs font-bold uppercase">
@@ -547,7 +555,10 @@ export default function CreatorsPage() {
                     <span>•</span>
                     <span className="font-mono">{selectedCreator.year}</span>
                   </div>
-                  <h3 className="font-headline-lg text-headline-lg uppercase text-primary mt-1">
+                  <h3
+                    id="creator-modal-title"
+                    className="font-headline-lg text-headline-lg uppercase text-primary mt-1"
+                  >
                     {selectedCreator.name}
                   </h3>
                   <p className="text-tertiary-fixed font-semibold uppercase text-xs">
@@ -560,7 +571,7 @@ export default function CreatorsPage() {
                 </div>
 
                 <div className="space-y-2 bg-surface-container p-3 border border-surface-variant/40">
-                  <span className="font-label-sm text-[10px] text-outline uppercase tracking-wider font-bold">
+                  <span className="font-label-sm text-xs text-outline uppercase tracking-wider font-bold">
                     Primary Production Rig:
                   </span>
                   <div className="flex items-center gap-2">
@@ -590,9 +601,9 @@ export default function CreatorsPage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

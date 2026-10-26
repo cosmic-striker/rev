@@ -49,7 +49,7 @@ export default function FloatingCinemaDock({
         <button
           type="button"
           onClick={onOpenGear}
-          className="hidden sm:flex items-center gap-1.5 px-3 py-2 bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-[11px] uppercase font-bold tracking-wider transition-colors"
+          className="hidden sm:flex items-center gap-1.5 px-3 py-2 bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-xs uppercase font-bold tracking-wider transition-colors"
           title="Open Equipment Cage"
         >
           <span className="material-symbols-outlined text-sm text-primary-fixed">
@@ -63,7 +63,7 @@ export default function FloatingCinemaDock({
       <button
         type="button"
         onClick={scrollToBook}
-        className="flex items-center gap-1.5 px-3 py-2 bg-primary-container text-on-primary-fixed hover:bg-tertiary-fixed font-label-sm text-[11px] uppercase font-bold tracking-wider transition-colors"
+        className="flex items-center gap-1.5 px-3 py-2 bg-primary-container text-on-primary-fixed hover:bg-tertiary-fixed font-label-sm text-xs uppercase font-bold tracking-wider transition-colors"
         title="Request Event Coverage"
       >
         <span className="material-symbols-outlined text-sm">videocam</span>

@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { storyProjects, type StoryProject } from "@/lib/collective";
 import { gradedImage, rawImage } from "@/lib/images";
 import Reveal from "@/components/ui/Reveal";
+import Modal from "@/components/ui/Modal";
 import GradeComparison from "@/components/case-studies/GradeComparison";
 
 const sortOptions = [
@@ -121,14 +122,6 @@ export default function StoriesPage() {
     setIsPlaying(false);
   };
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeProject();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
   const filteredProjects = gridProjects.filter((project) => {
     const matchesSort = activeSort === "all" || project.sort === activeSort;
     const matchesSearch =
@@ -146,11 +139,11 @@ export default function StoriesPage() {
           <div className="flex items-center gap-space-sm">
             <span className="inline-block w-2 h-2 rounded-full bg-primary-container animate-ping" />
             <span className="text-primary-fixed font-bold font-mono">REC [00:44:18:02]</span>
-            <span className="hidden sm:inline text-on-surface-variant font-mono text-[11px]">
+            <span className="hidden sm:inline text-on-surface-variant font-mono text-xs">
               {"// ISO 800 // 24FPS // SHUTTER 180° // 4K PRORES RAW"}
             </span>
           </div>
-          <div className="flex items-center gap-space-md font-mono text-[11px]">
+          <div className="flex items-center gap-space-md font-mono text-xs">
             <span>ARCHIVE DEPT // CASE STUDY DISPATCH #42</span>
             <span className="px-space-xs bg-surface text-primary-fixed font-bold">
               LIVE STATUS: ACTIVE ROLL
@@ -208,8 +201,17 @@ export default function StoriesPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
               <div className="lg:col-span-8 flex flex-col gap-space-md">
                 <div
-                  className="relative w-full aspect-video bg-surface-container-high overflow-hidden group cursor-pointer border border-surface-variant/40 hover:border-primary-fixed transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Play flagship case study video"
+                  className="relative w-full aspect-video bg-surface-container-high overflow-hidden group cursor-pointer border border-surface-variant/40 hover:border-primary-fixed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-fixed"
                   onClick={() => openProject("flagship")}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openProject("flagship");
+                    }
+                  }}
                 >
                   <Image
                     src={storyProjects.flagship.poster}
@@ -389,6 +391,7 @@ export default function StoriesPage() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  aria-label="Filter stories by title, genre, or award"
                   placeholder="Filter by title, genre..."
                   className="w-full bg-surface-container text-primary text-xs px-3 py-2 pl-8 border border-surface-variant focus:outline-none focus:border-primary-fixed placeholder:text-outline"
                 />
@@ -398,6 +401,7 @@ export default function StoriesPage() {
                 {search && (
                   <button
                     type="button"
+                    aria-label="Clear story search"
                     onClick={() => setSearch("")}
                     className="absolute right-2 top-2 text-xs text-outline hover:text-primary"
                   >
@@ -411,6 +415,7 @@ export default function StoriesPage() {
                   <button
                     key={option.id}
                     type="button"
+                    aria-pressed={activeSort === option.id}
                     onClick={() => setActiveSort(option.id)}
                     className={
                       activeSort === option.id
@@ -425,6 +430,14 @@ export default function StoriesPage() {
             </div>
           </Reveal>
 
+          <p
+            role="status"
+            aria-live="polite"
+            className="font-mono text-xs uppercase text-on-surface-variant"
+          >
+            Showing {filteredProjects.length} of {gridProjects.length} projects
+          </p>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
             {filteredProjects.map((project, idx) => {
               const data = storyProjects[project.id];
@@ -432,8 +445,17 @@ export default function StoriesPage() {
                 <Reveal key={project.id} delay={idx * 100} direction="up">
                   <article className="bg-surface-container flex flex-col justify-between group overflow-hidden border border-surface-variant/40 hover:border-primary-fixed shadow-[4px_4px_0px_0px_#292a2b] hover:shadow-[6px_6px_0px_0px_#c3f400] transition-all duration-300">
                     <div
-                      className={`relative w-full ${project.aspect} bg-surface-container-high overflow-hidden cursor-pointer`}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Play ${project.title}`}
+                      className={`relative w-full ${project.aspect} bg-surface-container-high overflow-hidden cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-fixed`}
                       onClick={() => openProject(project.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          openProject(project.id);
+                        }
+                      }}
                     >
                       <Image
                         src={data.poster}
@@ -556,16 +578,14 @@ export default function StoriesPage() {
       </section>
 
       {/* Interactive Video Playback Modal */}
-      {activeProject && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-black/95 backdrop-blur-xl transition-all duration-300"
-          role="dialog"
-          aria-modal="true"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) closeProject();
-          }}
-        >
-          <div className="relative w-full max-w-6xl max-h-[92vh] bg-surface-container-lowest border border-surface-variant flex flex-col overflow-hidden shadow-[12px_12px_0px_0px_#c3f400]">
+      <Modal
+        open={activeProject !== null}
+        onClose={closeProject}
+        labelledBy="stories-modal-title"
+        panelClassName="relative w-full max-w-6xl max-h-[92vh] bg-surface-container-lowest border border-surface-variant flex flex-col overflow-hidden shadow-[12px_12px_0px_0px_#c3f400]"
+      >
+        {activeProject && (
+          <>
             <div className="h-12 bg-surface-container px-space-md border-b border-surface-variant flex items-center justify-between shrink-0">
               <div className="flex items-center gap-space-sm font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-mono">
                 <span className="inline-block w-2.5 h-2.5 bg-primary-container rounded-full animate-ping" />
@@ -623,7 +643,13 @@ export default function StoriesPage() {
 
                 <div className="bg-surface-container-lowest p-space-sm sm:p-space-md border-t border-surface-variant space-y-space-xs">
                   <div
-                    className="relative w-full h-2 bg-surface-variant rounded cursor-pointer group"
+                    role="slider"
+                    tabIndex={0}
+                    aria-label="Seek video"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.round(progress)}
+                    className="relative w-full h-2 bg-surface-variant rounded cursor-pointer group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-fixed"
                     onClick={(event) => {
                       const rect = event.currentTarget.getBoundingClientRect();
                       const clicked = event.clientX - rect.left;
@@ -632,6 +658,20 @@ export default function StoriesPage() {
                       setTimecode(
                         `0${Math.floor(percent / 10)}:${String(
                           Math.floor((percent % 10) * 6)
+                        ).padStart(2, "0")}`
+                      );
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                      event.preventDefault();
+                      const next = Math.max(
+                        0,
+                        Math.min(100, progress + (event.key === "ArrowRight" ? 5 : -5))
+                      );
+                      setProgress(next);
+                      setTimecode(
+                        `0${Math.floor(next / 10)}:${String(
+                          Math.floor((next % 10) * 6)
                         ).padStart(2, "0")}`
                       );
                     }}
@@ -680,8 +720,9 @@ export default function StoriesPage() {
                       </span>
                       <button
                         type="button"
+                        aria-pressed={resolution === "4K"}
                         onClick={() => setResolution("4K")}
-                        className={`px-space-xs py-0.5 uppercase rounded text-[10px] ${
+                        className={`px-space-xs py-0.5 uppercase rounded text-xs ${
                           resolution === "4K"
                             ? "bg-primary-container text-on-primary-fixed font-bold"
                             : "bg-surface-container hover:bg-surface-variant text-on-surface"
@@ -691,8 +732,9 @@ export default function StoriesPage() {
                       </button>
                       <button
                         type="button"
+                        aria-pressed={resolution === "1080P"}
                         onClick={() => setResolution("1080P")}
-                        className={`px-space-xs py-0.5 uppercase rounded text-[10px] ${
+                        className={`px-space-xs py-0.5 uppercase rounded text-xs ${
                           resolution === "1080P"
                             ? "bg-primary-container text-on-primary-fixed font-bold"
                             : "bg-surface-container hover:bg-surface-variant text-on-surface"
@@ -711,7 +753,10 @@ export default function StoriesPage() {
                     <span className="font-label-sm text-label-sm uppercase text-primary-fixed font-bold tracking-wider">
                       {activeProject.category}
                     </span>
-                    <h2 className="font-headline-lg text-headline-lg text-primary uppercase leading-tight">
+                    <h2
+                      id="stories-modal-title"
+                      className="font-headline-lg text-headline-lg text-primary uppercase leading-tight"
+                    >
                       {activeProject.title}
                     </h2>
                     <p className="font-body-sm text-body-sm text-on-surface-variant pt-1">
@@ -804,9 +849,9 @@ export default function StoriesPage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

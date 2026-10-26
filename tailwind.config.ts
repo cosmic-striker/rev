@@ -92,7 +92,7 @@ const config: Config = {
       },
       fontSize: {
         "body-md": ["1rem", { lineHeight: "1.5rem", letterSpacing: "0em", fontWeight: "400" }],
-        "label-sm": ["0.625rem", { lineHeight: "0.875rem", letterSpacing: "0.1em", fontWeight: "700" }],
+        "label-sm": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0.1em", fontWeight: "700" }],
         "body-sm": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0.01em", fontWeight: "400" }],
         "display-lg-mobile": ["2.25rem", { lineHeight: "2.5rem", letterSpacing: "-0.01em", fontWeight: "700" }],
         "label-lg": ["0.875rem", { lineHeight: "1.125rem", letterSpacing: "0.05em", fontWeight: "600" }],

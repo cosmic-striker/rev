@@ -42,7 +42,7 @@ export default function GradeComparison({
                 key={pct}
                 type="button"
                 onClick={() => setPos(pct)}
-                className={`px-2 py-0.5 text-[10px] font-mono uppercase transition-colors ${
+                className={`px-2 py-0.5 text-xs font-mono uppercase transition-colors ${
                   pos === pct
                     ? "bg-primary-container text-on-primary-fixed font-bold"
                     : "bg-surface-container text-on-surface hover:text-primary"
@@ -91,13 +91,13 @@ export default function GradeComparison({
               style={{ filter: "saturate(0.35) brightness(1.12) contrast(0.85)" }}
             />
           </div>
-          <span className="absolute bottom-3 left-3 font-label-sm text-label-sm uppercase tracking-wider text-on-surface bg-surface-container-lowest/90 px-space-sm py-1 border border-surface-variant font-mono text-[11px] font-bold">
+          <span className="absolute bottom-3 left-3 font-label-sm text-label-sm uppercase tracking-wider text-on-surface bg-surface-container-lowest/90 px-space-sm py-1 border border-surface-variant font-mono text-xs font-bold">
             ◄ Flat Camera Log [Sony S-Log3 / EI 800]
           </span>
         </div>
 
         {/* Master Grade Tag (Right) */}
-        <span className="absolute bottom-3 right-3 font-label-sm text-label-sm uppercase tracking-wider text-primary bg-surface-container-lowest/90 px-space-sm py-1 border border-surface-variant font-mono text-[11px] font-bold">
+        <span className="absolute bottom-3 right-3 font-label-sm text-label-sm uppercase tracking-wider text-primary bg-surface-container-lowest/90 px-space-sm py-1 border border-surface-variant font-mono text-xs font-bold">
           Master Theatrical Grade [Resolution Club Custom 3D LUT] ►
         </span>
 
@@ -116,7 +116,7 @@ export default function GradeComparison({
         </div>
 
         {/* Viewfinder crosshair overlay */}
-        <div className="absolute top-3 left-3 text-[10px] font-mono text-outline pointer-events-none">
+        <div className="absolute top-3 left-3 text-xs font-mono text-outline pointer-events-none">
           DAVINCI COLOR MANAGED (DWG / INTERMEDIATE)
         </div>
       </div>

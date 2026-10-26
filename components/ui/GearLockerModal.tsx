@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Modal from "@/components/ui/Modal";
 
 export type GearItem = {
   id: string;
@@ -126,22 +127,6 @@ export default function GearLockerModal({
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    if (open) {
-      window.addEventListener("keydown", handleKey);
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-      document.body.style.overflow = "";
-    };
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   const filteredGear = gearInventory.filter((item) => {
     const matchesTab = activeTab === "all" || item.category === activeTab;
     const matchesSearch =
@@ -152,15 +137,13 @@ export default function GearLockerModal({
   });
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <Modal
+      open={open}
+      onClose={onClose}
+      labelledBy="gear-locker-title"
+      panelClassName="w-full max-w-4xl border border-surface-variant bg-surface-container-low p-4 sm:p-6 shadow-[10px_10px_0px_0px_#c3f400]"
     >
-      <div className="bg-surface-container-low max-w-4xl w-full border border-surface-variant p-4 sm:p-6 shadow-[10px_10px_0px_0px_#c3f400] relative max-h-[90vh] flex flex-col">
+      <div className="flex max-h-[85vh] flex-col">
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-4 border-b border-surface-variant/40">
           <div className="flex items-center gap-3">
@@ -169,10 +152,13 @@ export default function GearLockerModal({
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-headline-md text-headline-md uppercase text-primary leading-tight">
+                <h3
+                  id="gear-locker-title"
+                  className="font-headline-md text-headline-md uppercase text-primary leading-tight"
+                >
                   Equipment Cage Locker
                 </h3>
-                <span className="hidden sm:inline-block px-2 py-0.5 bg-primary-fixed/20 text-primary-fixed font-label-sm text-[11px] font-bold uppercase tracking-wider">
+                <span className="hidden sm:inline-block px-2 py-0.5 bg-primary-fixed/20 text-primary-fixed font-label-sm text-xs font-bold uppercase tracking-wider">
                   Live Checkout Database
                 </span>
               </div>
@@ -198,8 +184,9 @@ export default function GearLockerModal({
               <button
                 key={c.id}
                 type="button"
+                aria-pressed={activeTab === c.id}
                 onClick={() => setActiveTab(c.id)}
-                className={`px-2.5 py-1 text-[11px] uppercase font-bold tracking-wider whitespace-nowrap transition-all ${
+                className={`px-2.5 py-1 text-xs uppercase font-bold tracking-wider whitespace-nowrap transition-all ${
                   activeTab === c.id
                     ? "bg-primary-container text-on-primary-fixed shadow-[2px_2px_0px_0px_#ffffff]"
                     : "bg-surface-container text-on-surface-variant hover:text-primary"
@@ -216,6 +203,7 @@ export default function GearLockerModal({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter gear, cameras..."
+              aria-label="Filter equipment inventory"
               className="w-full bg-surface-container text-primary text-xs px-3 py-1.5 pl-8 border border-surface-variant focus:outline-none focus:border-primary-fixed placeholder:text-outline"
             />
             <span className="material-symbols-outlined absolute left-2 top-1.5 text-base text-outline pointer-events-none">
@@ -236,17 +224,17 @@ export default function GearLockerModal({
                   <span className="font-headline-sm text-headline-sm text-primary uppercase text-sm">
                     {gear.name}
                   </span>
-                  <span className="px-1.5 py-0.5 bg-surface-container-highest text-secondary-fixed text-[10px] font-bold uppercase tracking-wider">
+                  <span className="px-1.5 py-0.5 bg-surface-container-highest text-secondary-fixed text-xs font-bold uppercase tracking-wider">
                     {gear.tag}
                   </span>
-                  <span className="px-1.5 py-0.5 bg-surface-container-lowest text-on-surface-variant text-[10px] uppercase font-mono">
+                  <span className="px-1.5 py-0.5 bg-surface-container-lowest text-on-surface-variant text-xs uppercase font-mono">
                     {gear.qty}
                   </span>
                 </div>
                 <p className="font-body-sm text-body-sm text-on-surface-variant text-xs">
                   {gear.specs}
                 </p>
-                <div className="flex items-center gap-3 text-[11px] text-outline font-label-sm">
+                <div className="flex items-center gap-3 text-xs text-outline font-label-sm">
                   <span>Req: <strong className="text-on-surface">{gear.tier}</strong></span>
                   <span>•</span>
                   <span
@@ -278,7 +266,7 @@ export default function GearLockerModal({
                   if (onSelectGear) onSelectGear(gear.name);
                   onClose();
                 }}
-                className="self-start sm:self-center px-3 py-1.5 bg-surface-container-highest hover:bg-primary-container hover:text-on-primary-fixed transition-colors text-primary font-label-sm text-[11px] font-bold uppercase tracking-wider whitespace-nowrap"
+                className="self-start sm:self-center px-3 py-1.5 bg-surface-container-highest hover:bg-primary-container hover:text-on-primary-fixed transition-colors text-primary font-label-sm text-xs font-bold uppercase tracking-wider whitespace-nowrap"
               >
                 Request in Dispatch →
               </button>
@@ -299,7 +287,7 @@ export default function GearLockerModal({
         </div>
 
         {/* Footer info */}
-        <div className="pt-3 border-t border-surface-variant/40 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-on-surface-variant gap-2">
+        <div className="pt-3 border-t border-surface-variant/40 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-on-surface-variant gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary-fixed animate-ping" />
             <span>Walk-in checkouts open Mon-Fri 14:00 - 19:00 with student ID.</span>
@@ -309,7 +297,7 @@ export default function GearLockerModal({
           </span>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

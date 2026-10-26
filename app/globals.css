@@ -23,12 +23,27 @@
   }
 }
 
-::-webkit-scrollbar {
-  display: none;
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444933 #121314;
 }
 
-html {
-  scrollbar-width: none;
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #121314;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444933;
+  border: 2px solid #121314;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8e9379;
 }
 
 @keyframes marquee {
@@ -90,6 +105,20 @@ html {
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 }
 
