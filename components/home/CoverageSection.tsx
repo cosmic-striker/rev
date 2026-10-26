@@ -151,17 +151,42 @@ export default function CoverageSection({ notes, setNotes }: CoverageSectionProp
             <form
               ref={formRef}
               className="space-y-space-md"
-              onSubmit={(event) => {
+              onSubmit={async (event) => {
                 event.preventDefault();
+                if (!formRef.current) return;
+                const formData = new FormData(formRef.current);
+                const packages: string[] = [];
+                formRef.current
+                  .querySelectorAll<HTMLInputElement>('input[name="packages"]:checked')
+                  .forEach((el) => packages.push(el.value));
+                const payload = {
+                  name: formData.get("name"),
+                  email: formData.get("email"),
+                  organization: formData.get("organization"),
+                  eventDate: formData.get("eventDate"),
+                  packages,
+                  notes,
+                  website: formData.get("website"),
+                };
                 setIsSubmitting(true);
-                window.setTimeout(() => {
-                  setIsSubmitting(false);
+                try {
+                  const res = await fetch("/api/coverage", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                  });
+                  if (!res.ok) throw new Error("failed");
                   setSubmitted(true);
                   setNotes("");
-                  formRef.current?.reset();
-                }, 600);
+                  formRef.current.reset();
+                } catch {
+                  alert("Failed to submit. Please try again.");
+                } finally {
+                  setIsSubmitting(false);
+                }
               }}
             >
+              <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
                 <div>
                   <label
@@ -282,7 +307,11 @@ export default function CoverageSection({ notes, setNotes }: CoverageSectionProp
               </div>
 
               {submitted && (
-                <div className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff]">
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff]"
+                >
                   <span className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-lg">
                       check_circle

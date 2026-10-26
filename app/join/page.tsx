@@ -110,7 +110,9 @@ export default function JoinPage() {
   const [track, setTrack] = useState<"book" | "join">("book");
   const [eventType, setEventType] = useState("Concert / Fest");
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [joinSubmitted, setJoinSubmitted] = useState(false);
+  const [joinSubmitting, setJoinSubmitting] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const bookingFormRef = useRef<HTMLFormElement>(null);
   const joinFormRef = useRef<HTMLFormElement>(null);
@@ -262,13 +264,43 @@ export default function JoinPage() {
               <Reveal direction="left" delay={150} className="lg:col-span-8 bg-surface-container p-space-lg shadow-[8px_8px_0px_0px_#c3f400] border border-surface-variant">
                 <form
                   ref={bookingFormRef}
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    setBookingSubmitted(true);
-                    bookingFormRef.current?.reset();
+                    if (!bookingFormRef.current) return;
+                    const fd = new FormData(bookingFormRef.current);
+                    const packages: string[] = [];
+                    bookingFormRef.current
+                      .querySelectorAll<HTMLInputElement>('input[name="packages"]:checked')
+                      .forEach((el) => packages.push(el.value));
+                    const budget = bookingFormRef.current.querySelector<HTMLInputElement>('input[name="budgetTier"]:checked');
+                    const payload = {
+                      name: fd.get("name"),
+                      email: fd.get("email"),
+                      organization: fd.get("organization"),
+                      eventDate: fd.get("eventDate"),
+                      packages,
+                      budgetTier: budget?.value,
+                      website: fd.get("website"),
+                    };
+                    setBookingSubmitting(true);
+                    try {
+                      const res = await fetch("/api/coverage", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                      });
+                      if (!res.ok) throw new Error("failed");
+                      setBookingSubmitted(true);
+                      bookingFormRef.current.reset();
+                    } catch {
+                      alert("Failed to submit. Please try again.");
+                    } finally {
+                      setBookingSubmitting(false);
+                    }
                   }}
                   className="space-y-space-md"
                 >
+                  <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
                   <div className="flex items-center justify-between pb-space-sm border-b border-surface-variant/40">
                     <h3 className="font-headline-md text-headline-md uppercase text-primary">
                       Coverage Booking Request
@@ -437,7 +469,7 @@ export default function JoinPage() {
                   </div>
 
                   {bookingSubmitted && (
-                    <div className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff]">
+                    <div role="status" aria-live="polite" className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff]">
                       <span className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-lg">
                           check_circle
@@ -456,9 +488,10 @@ export default function JoinPage() {
 
                   <button
                     type="submit"
-                    className="w-full py-space-md bg-primary-container text-on-primary-fixed font-label-lg text-label-lg uppercase font-bold tracking-wider hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-all shadow-[4px_4px_0px_0px_#ffffff] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                    disabled={bookingSubmitting}
+                    className="w-full py-space-md bg-primary-container text-on-primary-fixed font-label-lg text-label-lg uppercase font-bold tracking-wider hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-all shadow-[4px_4px_0px_0px_#ffffff] hover:shadow-none hover:translate-x-1 hover:translate-y-1 disabled:opacity-60"
                   >
-                    Confirm Booking Request →
+                    {bookingSubmitting ? "Transmitting..." : "Submit Booking Request →"}
                   </button>
                 </form>
               </Reveal>
@@ -600,13 +633,42 @@ export default function JoinPage() {
 
                 <form
                   ref={joinFormRef}
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    setJoinSubmitted(true);
-                    joinFormRef.current?.reset();
+                    if (!joinFormRef.current) return;
+                    const fd = new FormData(joinFormRef.current);
+                    const roles: string[] = [];
+                    joinFormRef.current
+                      .querySelectorAll<HTMLInputElement>('input[name="roles"]:checked')
+                      .forEach((el) => roles.push(el.value));
+                    const payload = {
+                      name: fd.get("name"),
+                      email: fd.get("email"),
+                      graduation: fd.get("graduation"),
+                      roles,
+                      portfolio: fd.get("portfolio"),
+                      why: fd.get("why"),
+                      website: fd.get("website"),
+                    };
+                    setJoinSubmitting(true);
+                    try {
+                      const res = await fetch("/api/join", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                      });
+                      if (!res.ok) throw new Error("failed");
+                      setJoinSubmitted(true);
+                      joinFormRef.current.reset();
+                    } catch {
+                      alert("Failed to submit. Please try again.");
+                    } finally {
+                      setJoinSubmitting(false);
+                    }
                   }}
                   className="space-y-space-md"
                 >
+                  <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-md">
                     <div>
                       <label
@@ -721,7 +783,7 @@ export default function JoinPage() {
                   </div>
 
                   {joinSubmitted && (
-                    <div className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff]">
+                    <div role="status" aria-live="polite" className="p-space-sm bg-primary-container text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold flex items-center justify-between shadow-[2px_2px_0px_0px_#ffffff]">
                       <span className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-lg">
                           check_circle
@@ -740,9 +802,10 @@ export default function JoinPage() {
 
                   <button
                     type="submit"
-                    className="w-full py-space-md bg-primary-container text-on-primary-fixed font-label-lg text-label-lg uppercase font-bold tracking-wider hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-all shadow-[4px_4px_0px_0px_#ffffff] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                    disabled={joinSubmitting}
+                    className="w-full py-space-md bg-primary-container text-on-primary-fixed font-label-lg text-label-lg uppercase font-bold tracking-wider hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-all shadow-[4px_4px_0px_0px_#ffffff] hover:shadow-none hover:translate-x-1 hover:translate-y-1 disabled:opacity-60"
                   >
-                    Submit Crew Application →
+                    {joinSubmitting ? "Transmitting..." : "Submit Crew Application →"}
                   </button>
                 </form>
               </Reveal>
