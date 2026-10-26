@@ -57,16 +57,18 @@ export default function SiteFooter() {
               Channels &amp; Broadcast
             </h4>
             <ul className="space-y-space-xs font-body-sm text-body-sm">
-              {footerLinks.connect.map((link) => (
-                <li key={link.label}>
-                  <a
-                    className="text-on-surface-variant hover:text-primary transition-colors"
-                    href={link.href}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              {footerLinks.connect
+                .filter((link) => link.href && link.href !== "#")
+                .map((link) => (
+                  <li key={link.label}>
+                    <a
+                      className="text-on-surface-variant hover:text-primary transition-colors"
+                      href={link.href}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
             </ul>
           </div>
 
